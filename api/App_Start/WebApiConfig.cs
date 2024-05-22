@@ -1,4 +1,5 @@
 ﻿using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace DigitalMicrowave
 {
@@ -6,9 +7,10 @@ namespace DigitalMicrowave
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            var policy = new EnableCorsAttribute("http://localhost:5173", "*", "*");
+            policy.SupportsCredentials = true;
+            config.EnableCors(policy);
 
-            // Web API routes
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(

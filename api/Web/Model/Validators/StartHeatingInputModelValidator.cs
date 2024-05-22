@@ -13,7 +13,7 @@ namespace DigitalMicrowave.Web.Model.Validators
 
             RuleFor(inputModel => inputModel.PowerLevel)
                 .InclusiveBetween(1, 10)
-                .WithMessage("Porência precisa ser um valor entre 1 e 10"); ;
+                .WithMessage("Potência precisa ser um valor entre 1 e 10"); ;
         }
     }
 }

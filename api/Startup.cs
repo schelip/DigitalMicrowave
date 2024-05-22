@@ -25,8 +25,6 @@ namespace DigitalMicrowave
         {
             app.UseHangfireAspNet(GetHangfireServers);
             app.UseHangfireDashboard();
-
-            app.MapSignalR();
         }
     }
 }

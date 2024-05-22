@@ -1,22 +1,14 @@
 ﻿using DigitalMicrowave.Web.Model.ViewModel;
 using DigitalMicrowave.Business.Entities;
 using DigitalMicrowave.Infrastructure.Services;
-using DigitalMicrowave.Web.Hubs;
 using Hangfire;
-using Microsoft.AspNet.SignalR;
 using System.Threading;
 
 namespace DigitalMicrowave.Business.Services
 {
     public class MicrowaveService : IMicrowaveService
     {
-        private IHubContext _microwaveHubContext;
         private static Microwave microwave = new Microwave();
-
-        public MicrowaveService()
-        {
-            _microwaveHubContext = GlobalHost.ConnectionManager.GetHubContext<MicrowaveHub>();
-        }
 
         public MicrowaveViewModel Get() => new MicrowaveViewModel(microwave);
 
@@ -32,6 +24,7 @@ namespace DigitalMicrowave.Business.Services
             {
                 microwave.TimeLeft = time;
                 microwave.PowerLevel = powerLevel;
+                microwave.Status = string.Empty;
             }
 
             microwave.HeatingJobId = BackgroundJob.Enqueue(() => Heat());
@@ -58,11 +51,11 @@ namespace DigitalMicrowave.Business.Services
                     return;
 
                 microwave.TimeLeft--;
-                _microwaveHubContext.Clients.All.update(microwave);
+                microwave.Status += new string('.', microwave.PowerLevel) + " ";
             }
-
+            microwave.Status += "Aquecimento concluído";
+            Thread.Sleep(1000);
             microwave.CurrentState = Microwave.State.Idle;
-            _microwaveHubContext.Clients.All.update(microwave);
         }
     }
 }

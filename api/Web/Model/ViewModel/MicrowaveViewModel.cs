@@ -20,7 +20,7 @@ namespace DigitalMicrowave.Web.Model.ViewModel
 
         private string FormatTimeLeft(int seconds)
         {
-            if (60 < seconds && seconds < 120)
+            if (60 < seconds && seconds < 100) // TODO: Validar se a formatação deve realmente respeitar o limite superior de 100 segundos
             {
                 var span = TimeSpan.FromSeconds(seconds);
                 return $"{span.Minutes}:{span.Seconds:D2}";
