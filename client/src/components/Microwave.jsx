@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import DigitalButton from "./DigitalButton";
+import HeatingProcedure from "./HeatingProcedure";
 
 export default function Microwave() {
   const statusTextArea = useRef(null);
@@ -23,6 +24,11 @@ export default function Microwave() {
     useState(false);
   const [numberButtonsDisabled, setNumberButtonsDisabled] = useState();
 
+  const [heatingProcedures, setHeatingProcedures] = useState([]);
+  const [viewHeatingProcedures, setViewHeatingProcedures] = useState(false);
+  const [selectedHeatingProcedure, setSelectedHeatingProcedure] =
+    useState(null);
+
   const fetchMicrowave = async () => {
     const response = await fetch(`/api/microwave/get`, {
       method: "GET",
@@ -38,8 +44,18 @@ export default function Microwave() {
     }
   };
 
+  const fetchHeatingProcedures = async () => {
+    const response = await fetch(`/api/heatingProcedure/get`, {
+      method: "GET",
+    });
+    if (response.status === 200) {
+      setHeatingProcedures(await response.json());
+    }
+  };
+
   useEffect(() => {
     fetchMicrowave();
+    fetchHeatingProcedures();
   }, []);
 
   useEffect(() => {
@@ -94,6 +110,10 @@ export default function Microwave() {
         newErrors.push(Object.values(data.ModelState));
       }
     }
+    if (response.status === 500) {
+      const data = await response.json();
+      newErrors.push(data.ExceptionMessage);
+    }
     setErrors(newErrors);
     await fetchMicrowave();
   };
@@ -103,6 +123,17 @@ export default function Microwave() {
     setTimeInput("");
     setPowerLevelInput("");
     await fetch(`/api/microwave/stop`, {
+      method: "POST",
+    });
+    await fetchMicrowave();
+  };
+
+  const handleStartHeatingProcedure = async (id) => {
+    setErrors([]);
+    setTimeInput("");
+    setPowerLevelInput("");
+    setViewHeatingProcedures(false);
+    await fetch(`/api/microwave/start-proc/${id}`, {
       method: "POST",
     });
     await fetchMicrowave();
@@ -140,14 +171,6 @@ export default function Microwave() {
           max={10}
           min={1}
         ></input>
-        {errors.length > 0 && (
-          <div className="font-mono text-red-300 text-xs mt-2">
-            Erro:
-            {errors.map((e, i) => (
-              <div key={i}>{e}</div>
-            ))}
-          </div>
-        )}
       </div>
     );
   };
@@ -177,6 +200,34 @@ export default function Microwave() {
     );
   };
 
+  const getHeatingProceduresList = () => {
+    return selectedHeatingProcedure ? (
+      <HeatingProcedure
+        id={selectedHeatingProcedure}
+        onStart={() => handleStartHeatingProcedure(selectedHeatingProcedure)}
+        onBack={() => setSelectedHeatingProcedure(null)}
+      />
+    ) : (
+      <div className="flex flex-col relative space-y-2 h-full">
+        {heatingProcedures.map((hp) => (
+          <button
+            className="border-green-500 hover:bg-green-500 hover:text-black border-2"
+            key={hp.Id}
+            onClick={() => setSelectedHeatingProcedure(hp.Id)}
+          >
+            {`${hp.Id} - ${hp.Name}`}
+          </button>
+        ))}
+        <button
+          className="absolute bottom-0 inset-x-0 border-green-500 hover:bg-green-500 hover:text-black border-2"
+          onClick={() => setViewHeatingProcedures(false)}
+        >
+          Voltar
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-row space-x-0 m-auto w-11/12 xl:w-5/6 h-5/6 bg-zinc-500">
       <div className="flex relative w-2/3">
@@ -190,66 +241,86 @@ export default function Microwave() {
       </div>
       <div className="flex w-1/3 border-l-8 border-black p-8">
         <div className="flex flex-col py-4 space-y-4 bg-black font-dseg14 text-green-500 font-bold w-full h-full p-4 pt-8 relative">
-          <form className="w-full">
-            {isIdle ? getForm() : getDisplay()}
-            <div className="absolute bottom-5 inset-x-0 w-7/12 mx-auto">
-              <div className="grid grid-cols-3 gap-4 ">
-                {Array(9)
-                  .fill()
-                  .map((_, i) => {
-                    const number = i + 1;
-                    return (
-                      <DigitalButton
-                        key={number}
-                        number={i + 1}
-                        disabled={numberButtonsDisabled}
-                        onClick={() => handleNumberButtonClick(number)}
-                      >
-                        {number}
-                      </DigitalButton>
-                    );
-                  })}
-                <DigitalButton onClick={handleStop}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="3"
-                    stroke="currentColor"
-                    className="w-6 h-6"
+          {viewHeatingProcedures ? (
+            getHeatingProceduresList()
+          ) : (
+            <form className="w-full">
+              {isIdle ? getForm() : getDisplay()}
+              <div className="absolute bottom-5 inset-x-0 w-7/12 mx-auto">
+                {heatingProcedures.length && isIdle && (
+                  <button
+                    className="mx-auto mb-4 text-[8pt] border-green-500 hover:bg-green-500 hover:text-black border-2"
+                    onClick={() => setViewHeatingProcedures(true)}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.75 5.25v13.5m-7.5-13.5v13.5"
-                    />
-                  </svg>
-                </DigitalButton>
-                <DigitalButton
-                  disabled={numberButtonsDisabled}
-                  onClick={() => handleNumberButtonClick(0)}
-                >
-                  {0}
-                </DigitalButton>
-                <DigitalButton onClick={handleStart}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="3"
-                    stroke="currentColor"
-                    className="w-6 h-6"
+                    Programas de aquecimento
+                  </button>
+                )}
+                {errors.length > 0 && (
+                  <div className="font-mono text-red-300 text-xs mb-2">
+                    Erro:
+                    {errors.map((e, i) => (
+                      <div key={i}>{e}</div>
+                    ))}
+                  </div>
+                )}
+                <div className="grid grid-cols-3 gap-4 ">
+                  {Array(9)
+                    .fill()
+                    .map((_, i) => {
+                      const number = i + 1;
+                      return (
+                        <DigitalButton
+                          key={number}
+                          number={i + 1}
+                          disabled={numberButtonsDisabled}
+                          onClick={() => handleNumberButtonClick(number)}
+                        >
+                          {number}
+                        </DigitalButton>
+                      );
+                    })}
+                  <DigitalButton onClick={handleStop}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="3"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 5.25v13.5m-7.5-13.5v13.5"
+                      />
+                    </svg>
+                  </DigitalButton>
+                  <DigitalButton
+                    disabled={numberButtonsDisabled}
+                    onClick={() => handleNumberButtonClick(0)}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
-                    />
-                  </svg>
-                </DigitalButton>
+                    {0}
+                  </DigitalButton>
+                  <DigitalButton onClick={handleStart}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="3"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                      />
+                    </svg>
+                  </DigitalButton>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </div>

@@ -3,24 +3,30 @@ using DigitalMicrowave.Web.Model.InputModel;
 using System.Web.Http;
 using FluentValidation;
 using System.Threading.Tasks;
+using DigitalMicrowave.Infrastructure.Data.Repositories;
 
 namespace DigitalMicrowave.Web.Controllers
 {
     public class MicrowaveController : ApiController
     {
         private IValidator<StartHeatingInputModel> _startHeatingValidator;
-        private IMicrowaveService _service;
+        private IMicrowaveService _microwaveService;
+        private IHeatingProcedureRepository _heatingProcedureRepository;
 
-        public MicrowaveController(IValidator<StartHeatingInputModel> startHeatingValidator, IMicrowaveService microwaveService)
+        public MicrowaveController(
+            IValidator<StartHeatingInputModel> startHeatingValidator,
+            IMicrowaveService microwaveService,
+            IHeatingProcedureRepository heatingProcedureService)
         {
             _startHeatingValidator = startHeatingValidator;
-            _service = microwaveService;
+            _microwaveService = microwaveService;
+            _heatingProcedureRepository = heatingProcedureService;
         }
 
         [HttpGet]
         public IHttpActionResult Get()
         {
-            var microwave = _service.Get();
+            var microwave = _microwaveService.Get();
             return Ok(microwave);
         }
 
@@ -38,18 +44,32 @@ namespace DigitalMicrowave.Web.Controllers
                         return BadRequest(ModelState);
                     }
 
-                _service.Start(startHeatingInput.Time, startHeatingInput.PowerLevel);
+                _microwaveService.Start(startHeatingInput.Time, startHeatingInput.PowerLevel);
             }
             else
-                _service.Start();
+                _microwaveService.Start();
 
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("api/microwave/start-proc/{heatingProcedureId}")]
+        public async Task<IHttpActionResult> StartHeatingProcedure([FromUri] int heatingProcedureId)
+        {
+            // TODO: GAMBIARRA!! Não foi possível injetar o HeatingProcedureRepository no MicrowaveService, mas o controller não deveria acessar o Repository
+            var heatingProcedure = await _heatingProcedureRepository.GetById(heatingProcedureId);
+
+            if (heatingProcedure == null)
+                return NotFound();
+
+            _microwaveService.StartHeatingProcedure(heatingProcedure);
             return Ok();
         }
 
         [HttpPost]
         public IHttpActionResult Stop()
         {
-            _service.Stop();
+            _microwaveService.Stop();
             return Ok();
         }
     }

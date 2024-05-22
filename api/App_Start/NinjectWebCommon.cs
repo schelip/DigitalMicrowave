@@ -17,6 +17,8 @@ namespace DigitalMicrowave.App_Start
     using Ninject.Web.Common.WebHost;
     using Ninject.Web.WebApi;
     using FluentValidation;
+    using DigitalMicrowave.Infrastructure.Data.Repositories;
+    using DigitalMicrowave.Business.Repositories;
 
     public static class NinjectWebCommon 
     {
@@ -51,6 +53,7 @@ namespace DigitalMicrowave.App_Start
             {
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
                 kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
+                RegisterRepositories(kernel);
                 RegisterServices(kernel);
                 RegisterValidators(kernel);
                 GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
@@ -70,11 +73,17 @@ namespace DigitalMicrowave.App_Start
         private static void RegisterServices(IKernel kernel)
         {
             kernel.Bind<IMicrowaveService>().To<MicrowaveService>();
+            kernel.Bind<IHeatingProcedureService>().To<HeatingProcedureService>();
         }
 
         private static void RegisterValidators(IKernel kernel)
         {
             kernel.Bind<IValidator<StartHeatingInputModel>>().To<StartHeatingInputModelValidator>();
+        }
+
+        private static void RegisterRepositories(IKernel kernel)
+        {
+            kernel.Bind<IHeatingProcedureRepository>().To<HeatingProcedureRepository>();
         }
     }
 }

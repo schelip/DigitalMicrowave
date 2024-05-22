@@ -264,19 +264,31 @@
   <ItemGroup>
     <Compile Include="Business\Entities\HeatingProcedure.cs" />
     <Compile Include="Business\Entities\Microwave.cs" />
+    <Compile Include="Business\Repositories\BaseRepository.cs" />
+    <Compile Include="Business\Repositories\HeatingProcedureRepository.cs" />
+    <Compile Include="Business\Services\HeatingProcedureService.cs" />
     <Compile Include="Business\Services\MicrowaveService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\Data\DigitalMicrowaveContext.cs" />
+    <Compile Include="Infrastructure\Data\Migrations\202405220659052_Initial.cs" />
+    <Compile Include="Infrastructure\Data\Migrations\202405220659052_Initial.Designer.cs">
+      <DependentUpon>202405220659052_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\Data\Migrations\Configuration.cs" />
+    <Compile Include="Infrastructure\Data\Repositories\IHeatingProcedureRepository.cs" />
+    <Compile Include="Infrastructure\Services\IHeatingProcedureService.cs" />
     <Compile Include="Infrastructure\Services\IMicrowaveService.cs" />
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Web\Controllers\HeatingProcedureController.cs" />
     <Compile Include="Web\Controllers\MicrowaveController.cs" />
     <Compile Include="Web\Model\InputModel\StartHeatingInputModel.cs" />
     <Compile Include="Web\Model\Validators\StartHeatingInputModelValidator.cs" />
+    <Compile Include="Web\Model\ViewModel\HeatingProcedureViewModel.cs" />
     <Compile Include="Web\Model\ViewModel\MicrowaveViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +306,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Infrastructure\Data\Migrations\202405220659052_Initial.resx">
+      <DependentUpon>202405220659052_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

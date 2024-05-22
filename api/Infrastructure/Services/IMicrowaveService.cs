@@ -1,5 +1,6 @@
-﻿using DigitalMicrowave.Web.Model.InputModel;
+﻿using DigitalMicrowave.Business.Entities;
 using DigitalMicrowave.Web.Model.ViewModel;
+using System.Threading.Tasks;
 
 namespace DigitalMicrowave.Infrastructure.Services
 {
@@ -7,6 +8,7 @@ namespace DigitalMicrowave.Infrastructure.Services
     {
         MicrowaveViewModel Get();
         void Start(int time = 30, int powerLevel = 10);
+        void StartHeatingProcedure(HeatingProcedure heatingProcedure);
         void Stop();
     }
 }
