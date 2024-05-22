@@ -247,14 +247,6 @@ export default function Microwave() {
             <form className="w-full">
               {isIdle ? getForm() : getDisplay()}
               <div className="absolute bottom-5 inset-x-0 w-7/12 mx-auto">
-                {heatingProcedures.length === 0 && isIdle && (
-                  <button
-                    className="mx-auto mb-4 text-[8pt] border-green-500 hover:bg-green-500 hover:text-black border-2"
-                    onClick={() => setViewHeatingProcedures(true)}
-                  >
-                    Programas de aquecimento
-                  </button>
-                )}
                 {errors.length > 0 && (
                   <div className="font-mono text-red-300 text-xs mb-2">
                     Erro:
@@ -262,6 +254,14 @@ export default function Microwave() {
                       <div key={i}>{e}</div>
                     ))}
                   </div>
+                )}
+                {heatingProcedures.length !== 0 && isIdle && (
+                  <button
+                    className="mx-auto mb-4 text-[8pt] border-green-500 hover:bg-green-500 hover:text-black border-2"
+                    onClick={() => setViewHeatingProcedures(true)}
+                  >
+                    Programas de aquecimento
+                  </button>
                 )}
                 <div className="grid grid-cols-3 gap-4 ">
                   {Array(9)
