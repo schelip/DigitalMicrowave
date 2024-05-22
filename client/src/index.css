@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root,
+main,
+main > div {
+  height: 100%;
+  width: 100%;
+}
+
+@font-face {
+  font-family: "DSEG7";
+  src: url("/fonts/DSEG7-Modern/DSEG7Modern-Regular.ttf");
+}
+
+@font-face {
+  font-family: "DSEG14";
+  src: url("/fonts/DSEG14-Modern/DSEG14Modern-Regular.ttf");
+}
