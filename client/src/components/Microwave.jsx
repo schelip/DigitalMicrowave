@@ -247,7 +247,7 @@ export default function Microwave() {
             <form className="w-full">
               {isIdle ? getForm() : getDisplay()}
               <div className="absolute bottom-5 inset-x-0 w-7/12 mx-auto">
-                {heatingProcedures.length && isIdle && (
+                {heatingProcedures.length === 0 && isIdle && (
                   <button
                     className="mx-auto mb-4 text-[8pt] border-green-500 hover:bg-green-500 hover:text-black border-2"
                     onClick={() => setViewHeatingProcedures(true)}
